@@ -43,7 +43,7 @@ class Familia{
 		self.subjefesQueNoTienenMaDeDosArmasEnCondiciones().forEach{mafioso => mafioso.rango(soldado)}
 	}
 	
-	method miembrosVivos() = miembros.filter{ mafioso => self.durmiendoConLosPeces(mafioso)}
+	method miembrosVivos() = miembros.filter{ mafioso => !self.durmiendoConLosPeces(mafioso)}
 
 	method reacondicionarArmas(){
 		self.miembrosVivos().forEach{ mafioso => mafioso.reacondicionarArmas()}

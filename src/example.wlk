@@ -26,7 +26,7 @@ class MafiosoException inherits Exception { }
 class Familia{
 	const miembros = #{}
 
-	method durmiendoConLosPeces(mafioso) = mafioso.estaVivo()
+	method durmiendoConLosPeces(mafioso) = !mafioso.estaVivo()
 
 	method elMasPeligroso() = miembros.max{ mafioso => mafioso.nivelDeIntimidacion()}
 

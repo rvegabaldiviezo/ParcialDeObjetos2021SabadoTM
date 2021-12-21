@@ -73,7 +73,7 @@ class Mafioso{
 	const armas = [] // revolver || daga || cuerdaDePiano
 
 	method morir(){ estaVivo = false}
-	method herir() = if(cantidadDeHeridas<3) cantidadDeHeridas += 1 else self.morir() 
+	method herir() { if(cantidadDeHeridas<3) cantidadDeHeridas += 1 else self.morir()} 
 	method ataqueSorpresa(familia){
 		const victima = familia.elMasPeligroso()
 		rango.hacerSuTrabajo(self,victima)

@@ -55,7 +55,7 @@ class Familia{
 	}
 
 	method luto(){
-		if(self.durmiendoConLosPeces(self.elDon())){
+		if(!self.durmiendoConLosPeces(self.elDon())){
 			throw new MafiosoException(message = "No esta Muerto por lo que no debe haber Luto") 	
 		}
 		else{

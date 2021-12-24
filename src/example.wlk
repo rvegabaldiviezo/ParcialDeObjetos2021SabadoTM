@@ -28,7 +28,7 @@ class Familia{
 
 	method durmiendoConLosPeces(mafioso) = !mafioso.estaVivo()
 
-	method elMasPeligroso() = miembros.max{ mafioso => mafioso.nivelDeIntimidacion()}
+	method elMasPeligroso() = self.miembrosVivos().max{ mafioso => mafioso.nivelDeIntimidacion()}
 
 	method elDon() = miembros.filter({ mafioso => mafioso.rango() == don}).head()
 

@@ -1,0 +1,174 @@
+import example.*
+
+//### EJEMPLOS O CASOS DE PRUEBA
+
+//--> ARMAS
+const pistola = new Revolver()
+const gastarseTodoElCartucho = { 
+	6.times{n => pistola.usar(juanSoldado)}
+	return pistola
+}
+const pistolaSinBalas = gastarseTodoElCartucho.apply()
+const daga = new Daga(peligrosidadBase=2)
+const cuerda = new CuerdaDePiano()
+
+//--> MAFIOSOS
+const juanSoldado = new Mafioso(rango=soldado, armas=[new Daga(peligrosidadBase=2)])
+const joseSoldadoRevolver = new Mafioso(rango=soldado, armas=[new Revolver(), new Daga(peligrosidadBase=5)])
+const josueSoldadoDaga = new Mafioso(rango=soldado, armas=[new Daga(peligrosidadBase=5), new Revolver()])
+
+const pedroSubjefe = new Mafioso(rango=subjefe, armas=[new CuerdaDePiano(), new Revolver()])
+const nicoSubjefe = new Mafioso(rango=subjefe, armas=[new CuerdaDePiano(estaTensa=false), pistolaSinBalas])
+const leoDon = new Mafioso(rango=don, armas=[new Revolver(),new CuerdaDePiano(), new Daga(peligrosidadBase=1)])
+
+
+//### TEST DE ARMAS ##################################
+
+//--> REVOLVER
+describe "Test del efecto de un Revolver en una Persona"{
+	test "Tiene una capacidad inicial de 6 balas"{
+		assert.equals(6, pistola.cantidadDeBalas())	
+	}
+	test "Mata de un disparo porque esta en condiciones"{
+		// Inicialmente esta en condiciones
+		assert.equals(true, pistola.estaEnCondiciones())
+		// Inicialmente la persona esta viva
+		assert.equals(true, juanSoldado.estaVivo())
+		// Le dispara a la persona una sola vez
+		pistola.usar(juanSoldado)
+		// La persona esta muerta porque recibio un disparo de un arma en condiciones
+		assert.equals(false, juanSoldado.estaVivo())
+		
+	}
+	test "No mata porque no esta en condiciones"{
+		// Inicialmente esta en condiciones
+		assert.equals(true, pistola.estaEnCondiciones())
+		// Hace seis disparos contra este soldado
+		6.times{n => pistola.usar(juanSoldado)}
+		// No esta en condiciones
+		assert.equals(false, pistola.estaEnCondiciones())
+		// Usa el Revolver contra otra persona
+		pistola.usar(pedroSubjefe)
+		// La persona esta viva porque el revolver no estaba en condiciones
+		assert.equals(true, pedroSubjefe.estaVivo())
+	}
+}
+//--> DAGA
+describe "Test del efecto de una Daga en una Persona"{
+	test "Siempre esta en condiciones"{
+		// Inicialmente esta en condiciones
+		assert.equals(true, daga.estaEnCondiciones())
+		// Hace 20 apuñaladas seguidas
+		20.times{n => daga.usar(juanSoldado)}
+		// Sigue en condiciones
+		assert.equals(true, daga.estaEnCondiciones())
+	}
+	test "Tiene que herir 4 veces a una persona sana para matarlo"{
+		// Inicialmente la persona esta viva y no tiene heridas
+		assert.equals(true, juanSoldado.estaVivo())
+		assert.equals(0, juanSoldado.cantidadDeHeridas())
+		// Lo hiere tres veces consecutivas y como es una persona sana no muere
+		3.times{n => daga.usar(juanSoldado)}
+		assert.equals(true, juanSoldado.estaVivo())
+		// A la cuarta herida lo mata
+		daga.usar(juanSoldado)
+		assert.equals(false, juanSoldado.estaVivo())
+	}	
+}
+//--> CUERDA DE PIANO 
+describe "Test del efecto de una Cuerda de Piano en una Persona"{
+	test "Mata a su victima, la cuerda esta en buenas condiciones"{
+		//La cuerda esta tensa o en buenas condiciones 
+		assert.equals(true,cuerda.estaEnCondiciones())
+		// Inicialmente la persona esta viva
+		assert.equals(true, juanSoldado.estaVivo())
+		// Usa la cuerda en su victima
+		cuerda.usar(juanSoldado)
+		// La persona muere por el ataque con la cuerda
+		assert.equals(false, juanSoldado.estaVivo())
+	}
+	test "NO Mata a su victima, la cuerda NO esta en buenas condiciones"{
+		// Hacemos que la cuerda deje de estar tensa
+		cuerda.estaTensa(false)
+		// La cuerda no esta tensa, es decir, no esta en buenas condiciones 
+		assert.equals(false,cuerda.estaEnCondiciones())
+		// Inicialmente la persona esta viva y no tiene heridas
+		assert.equals(true, juanSoldado.estaVivo())
+		assert.equals(0, juanSoldado.cantidadDeHeridas())
+		// Usa la cuerda en su victima
+		cuerda.usar(juanSoldado)
+		// La persona sigue viva pero recibio una herida despues del ataque con la cuerda
+		assert.equals(true, juanSoldado.estaVivo())
+		assert.equals(1, juanSoldado.cantidadDeHeridas())
+	}
+}
+//--> EFECTO de las Armas en las Personas
+describe "Test para comprobar las personas a la cuarta herida mueren"{	
+	test "Las personas inicialmente esta vivo"{
+		assert.equals(true, leoDon.estaVivo())
+	}
+	test "Las personas sobreviven hasta 3 heridas"{
+		3.times{n => leoDon.herir()}
+		assert.equals(true, leoDon.estaVivo())
+	}
+	test "Las personas a la cuarta herida mueren"{
+		4.times{n => leoDon.herir()}
+		assert.equals(false, leoDon.estaVivo())
+	}	
+}
+
+//### TEST DE RANGOS ##################################
+//--> DON
+describe "Test del Don haciendo su trabajo"{
+	test "Cuando hace su trabajo desarma a su victima"{
+		// La victima inicialmente tiene armas
+		assert.notEquals(0,juanSoldado.armas().size())
+		// El don hace su trabajo en la victima
+		leoDon.hacerSuTrabajo(juanSoldado)
+		// La victima quedo desarmada
+		assert.equals(0,juanSoldado.armas().size())
+	}
+}
+//--> SUBJEFE
+describe "Test del Subjefe haciendo su trabajo"{
+	test "No tiene ninguna arma en condiciones y las que tiene solo pueden herirlo"{
+		// No tiene armas en condiciones
+		assert.equals(0, nicoSubjefe.cantidadDeArmasEnCondiciones())
+		// Juan no tiene heridas
+		assert.equals(0, juanSoldado.cantidadDeHeridas())
+		// El Subjefe hace su trabajo con la primer arma, es una cuerda, no esta en condiciones, solo lo hiere
+		nicoSubjefe.hacerSuTrabajo(juanSoldado)
+		// Juan es herido
+		assert.notEquals(0, juanSoldado.cantidadDeHeridas())
+	}
+	test "Le agregamos un revolver en condiciones, entonces, lo mata"{
+		// Le agregamos un Arma en condiciones, es la ultima arma de la lista
+		nicoSubjefe.armar(pistola)
+		// Juan no tiene heridas, esta vivo
+		assert.equals(0, juanSoldado.cantidadDeHeridas())
+		// Usa la primer arma en condiciones que encuentre, es la pistola, asi que lo mata
+		nicoSubjefe.hacerSuTrabajo(juanSoldado)
+		// La victima murio
+		assert.equals(false,juanSoldado.estaVivo())
+	}
+}
+//--> SOLDADO
+describe "Test del Soldado haciendo su trabajo"{
+	test "Jose usa la primer arma que tiene, es una pistola que mata a su victima"{
+		// Juan esta vivo
+		assert.equals(true, juanSoldado.estaVivo())
+		// El Soldado Jose usa su primer arma, es un revolver en condiciones, entonces lo mata
+		joseSoldadoRevolver.hacerSuTrabajo(juanSoldado)
+		// Juan esta muerto
+		assert.equals(false, juanSoldado.estaVivo())
+	}
+	test "Josue usa la primer arma que tiene, es una daga que hiere a su victima"{
+		// Juan no tiene heridas
+		assert.equals(0, juanSoldado.cantidadDeHeridas())
+		// El Soldado Josue usa su primer arma, es una Daga, entonces lo hiere
+		josueSoldadoDaga.hacerSuTrabajo(juanSoldado)
+		// Juan fue herido
+		assert.notEquals(0, juanSoldado.cantidadDeHeridas())
+	}
+}
+

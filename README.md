@@ -46,9 +46,10 @@ A) **Durmiendo con los peces**: Saber si un mafioso está muerto.
 B) **¡El más peligroso!**: Encontrar al mafioso vivo con mayor nivel de intimidación de una familia. Su intimidación equivale a la suma de la peligrosidad de cada una de sus armas, subtotal que se duplica en caso de que se trate de un subjefe, y en caso de ser el Don de la familia se le suman 20 puntos fijos.
 
 En general sabemos que la peligrosidad de un arma que no está en condiciones es de 1 punto, pero para los casos en los que sí están en condiciones consideramos los siguientes valores de peligrosidad base:
-** para los revólveres, el doble de la cantidad de balas que tenga
-** para las cuerdas de piano, 5
-** para las dagas se indicará en cada caso.
+
+* para los revólveres, el doble de la cantidad de balas que tenga
+* para las cuerdas de piano, 5
+* para las dagas se indicará en cada caso.
 
 
 C) **Ataque sorpresa**: Hacer que un mafioso ataque a una familia, que implica “hacer su trabajo” eligiendo como víctima a quien sea en el momento el mafioso más peligroso de la familia atacada. El atacante usa el arma correspondiente a su rango.

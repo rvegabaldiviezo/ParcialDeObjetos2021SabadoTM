@@ -1,26 +1,43 @@
 import example.*
 
-//### EJEMPLOS O CASOS DE PRUEBA
+//### CASOS DE PRUEBA ##################################
 
 //--> ARMAS
 const pistola = new Revolver()
-const gastarseTodoElCartucho = { 
-	6.times{n => pistola.usar(juanSoldado)}
-	return pistola
+object disparo{
+	method vaciarCartucho(_revolver){
+		6.times{n => _revolver.usar(new Mafioso(rango=soldado, nombre="Carlos"))}
+		return _revolver
+	}
 }
-const pistolaSinBalas = gastarseTodoElCartucho.apply()
-const daga = new Daga(peligrosidadBase=2)
+const pistolaSinBalas = disparo.vaciarCartucho(new Revolver())//NO ESTA EN CONDICIONES
+const pistolaOxidadaSinBalas = disparo.vaciarCartucho(new RevolverOxidado())//NO ESTA EN CONDICIONES
+const daga = new Daga(peligrosidadBase=2)//SIEMPRE ESTA EN BUENAS CONDICIONES
 const cuerda = new CuerdaDePiano()
 
-//--> MAFIOSOS
-const juanSoldado = new Mafioso(rango=soldado, armas=[new Daga(peligrosidadBase=2)])
-const joseSoldadoRevolver = new Mafioso(rango=soldado, armas=[new Revolver(), new Daga(peligrosidadBase=5)])
-const josueSoldadoDaga = new Mafioso(rango=soldado, armas=[new Daga(peligrosidadBase=5), new Revolver()])
+//--> MAFIOSOS DE LA FAMILIA LOS BUHOS
+const juanSoldado = new Mafioso(rango=soldado, nombre ="Juan", armas=[new Daga(peligrosidadBase=2)]) // 2 de peligrosidad
+const joseSoldadoRevolver = new Mafioso(rango=soldado, nombre ="Jose", armas=[new Revolver(), new Daga(peligrosidadBase=5), new Daga(peligrosidadBase=1)])// 12+5+1= 18 de peligrosidad
+const josueSoldadoDaga = new Mafioso(rango=soldado, nombre ="Josue", armas=[new Daga(peligrosidadBase=5), new Revolver()])// 5+12= 17 de peligrosidad
 
-const pedroSubjefe = new Mafioso(rango=subjefe, armas=[new CuerdaDePiano(), new Revolver()])
-const nicoSubjefe = new Mafioso(rango=subjefe, armas=[new CuerdaDePiano(estaTensa=false), pistolaSinBalas])
-const leoDon = new Mafioso(rango=don, armas=[new Revolver(),new CuerdaDePiano(), new Daga(peligrosidadBase=1)])
+const pedroSubjefe = new Mafioso(rango=subjefe, nombre ="Pedro", armas=[new CuerdaDePiano(), new Revolver(),new Daga(peligrosidadBase=3)])// 5+12+3= 20, 20*2 = 40 de peligrosidad
+const nicoSubjefe = new Mafioso(rango=subjefe, nombre ="Nico", armas=[new CuerdaDePiano(estaTensa=false), pistolaSinBalas])// 1+1= 2, 2*2= 4 de peligrosidad
+const leoDon = new Mafioso(rango=don, nombre ="Leo", armas=[new Revolver(),new CuerdaDePiano(), new Daga(peligrosidadBase=1)])// 12+5+1=18, 18+20= 38 de peligrosidad 
 
+const miembrosDeLosBuhos = #{juanSoldado,joseSoldadoRevolver,josueSoldadoDaga,pedroSubjefe,nicoSubjefe,leoDon}
+const familiaLosBuhos =  new Familia(miembros=miembrosDeLosBuhos)
+
+//--> MAFIOSOS DE LA FAMILIA LAS LEONAS
+const claudiaSoldado = new Mafioso(rango=soldado, nombre ="Claudia", armas=[new Daga(peligrosidadBase=2)])// 2 de peligrosidad
+const claraSoldadoRevolver = new Mafioso(rango=soldado, nombre ="Clara", armas=[new Revolver(), new Daga(peligrosidadBase=5)])// 12+5= 17 de peligrosidad
+const clarisaSoldadoDaga = new Mafioso(rango=soldado, nombre ="Clarisa", armas=[new Daga(peligrosidadBase=5), new Revolver()])// 5+12= 17 de peligrosidad
+
+const paulaSubjefe = new Mafioso(rango=subjefe, nombre ="Paula", armas=[new CuerdaDePiano(estaTensa=false), new Revolver(),new Daga(peligrosidadBase=1)])// 1+12+1= 14, 14*2 = 28 de peligrosidad
+const palomaSubjefe = new Mafioso(rango=subjefe, nombre ="Paloma", armas=[new CuerdaDePiano(estaTensa=false), pistolaSinBalas])// 1+1= 2, 2*2= 4 de peligrosidad
+const lauraDon = new Mafioso(rango=don, nombre ="Laura", armas=[new Revolver(),new CuerdaDePiano(), new Daga(peligrosidadBase=1)])// 12+5+1=18, 18+20= 38 de peligrosidad 
+
+const miembrosDeLasLeonas = #{claudiaSoldado,claraSoldadoRevolver,clarisaSoldadoDaga, paulaSubjefe,palomaSubjefe,lauraDon}
+const familiaLasLeonas = new Familia(miembros=miembrosDeLasLeonas)
 
 //### TEST DE ARMAS ##################################
 
@@ -118,6 +135,7 @@ describe "Test para comprobar las personas a la cuarta herida mueren"{
 }
 
 //### TEST DE RANGOS ##################################
+
 //--> DON
 describe "Test del Don haciendo su trabajo"{
 	test "Cuando hace su trabajo desarma a su victima"{
@@ -172,3 +190,226 @@ describe "Test del Soldado haciendo su trabajo"{
 	}
 }
 
+//### TEST DE ACCION ##################################
+
+//--> PUNTO A
+describe "Test del punto A: Durmiendo con los Peces"{
+	test "El mafioso esta vivo"{
+		//Es herido 3 veces, entonces, sigue vivo
+		3.times{n => leoDon.herir()}
+		assert.equals(true, leoDon.estaVivo())
+	}
+	test "El mafioso NO esta vivo, lo mataron"{
+		//Es herido 4 veces, entonces, murio
+		4.times{n => leoDon.herir()}
+		assert.equals(false, leoDon.estaVivo())
+	}
+}
+//--> PUNTO B
+describe "Test del punto B: Peligrosidad y Peligrosidad Base de las armas"{
+	test "La PELIGROSIDAD de cualquier arma que no este en condiciones es 1 (uno), salvo las dagas"{
+		assert.equals(1,pistolaSinBalas.peligrosidad())
+		assert.equals(1,pistolaOxidadaSinBalas.peligrosidad())
+		assert.equals(1,(new CuerdaDePiano(estaTensa=false)).peligrosidad())
+	}
+	test "La Peligrosidad Base de un Revolver de seis balas es 12, esta en condiciones"{
+		assert.equals(12, pistola.peligrosidadBase())
+	}
+	test "La Peligrosidad Base de un Revolver Oxidado de seis balas es 6 (mitad de la de un revolver comun), esta en condiciones"{
+		assert.equals(6, (new RevolverOxidado()).peligrosidadBase())	
+	}
+	test "La peligrosidad Base de una Daga es 7, se la instancio con este valor, esta en condiciones"{
+		assert.equals(7, (new Daga(peligrosidadBase=7)).peligrosidadBase())	
+	}
+	test "La peligrosidad Base de una Cuerda de Piano es 5, esta en condiciones"{
+		assert.equals(5, cuerda.peligrosidadBase())	
+	}
+}
+
+describe "Test del punto B: El más peligroso"{
+	test "El mafioso mas peligroso de la Familia los Buhos es Pedro, tiene 40 puntos de Nivel de Peligrosidad"{
+		//Peligrosidad de cada Miembro
+		assert.equals(2, juanSoldado.nivelDeIntimidacion())
+		assert.equals(18, joseSoldadoRevolver.nivelDeIntimidacion())
+		assert.equals(17, josueSoldadoDaga.nivelDeIntimidacion())
+		assert.equals(40, pedroSubjefe.nivelDeIntimidacion())
+		assert.equals(4, nicoSubjefe.nivelDeIntimidacion())
+		assert.equals(38, leoDon.nivelDeIntimidacion())
+		//El mas peligroso es Pedro
+		assert.equals("Pedro",familiaLosBuhos.elMasPeligroso().nombre())
+	}
+	test "El mafioso mas peligroso de la Familia las Leonas es Laura, tiene 38 puntos de Nivel de Peligrosidad"{
+		//Peligrosidad de cada Miembro
+		assert.equals(2, claudiaSoldado.nivelDeIntimidacion())
+		assert.equals(17, claraSoldadoRevolver.nivelDeIntimidacion())
+		assert.equals(17, clarisaSoldadoDaga.nivelDeIntimidacion())
+		assert.equals(28, paulaSubjefe.nivelDeIntimidacion())
+		assert.equals(4, palomaSubjefe.nivelDeIntimidacion())
+		assert.equals(38, lauraDon.nivelDeIntimidacion())
+		//El mas peligroso es Laura 
+		assert.equals("Laura",familiaLasLeonas.elMasPeligroso().nombre())
+	}
+}
+
+
+//--> PUNTO C
+describe "Test del punto C: Ataque sorpresa, al mas peligroso de cada familia"{
+	test "De la familia los Buhos es atacado Pedro, por clarisa que es un soldado, solo lo hiere porque usa una daga"{
+		// Pedro inicialmente no tiene heridas
+		assert.equals(0, pedroSubjefe.cantidadDeHeridas())
+		// Pedro es atacado por ser el mas peligroso de su familia
+		clarisaSoldadoDaga.ataqueSorpresa(familiaLosBuhos)
+		// Pedro tiene una herida
+		assert.equals(1, pedroSubjefe.cantidadDeHeridas())
+	}
+	test "De la familia los Buhos es atacado Pedro, por paula que es un Subjefe, lo mata porque usa un revolver en condiciones"{
+		// Pedro inicialmente esta vivo
+		assert.equals(true, pedroSubjefe.estaVivo())
+		// Pedro es atacado por ser el mas peligroso de su familia
+		paulaSubjefe.ataqueSorpresa(familiaLosBuhos)
+		// Pedro muere
+		assert.equals(false, pedroSubjefe.estaVivo())
+	}
+	test "De la familia las Leonas es atacada Laura por Juan que es un soldado, solo lo hiere porque usa una daga"{
+		// Laura inicialmente no tiene heridas
+		assert.equals(0, lauraDon.cantidadDeHeridas())
+		// Laura es atacada por ser la mas peligroso de su familia
+		juanSoldado.ataqueSorpresa(familiaLasLeonas)
+		// Laura tiene una herida
+		assert.equals(1, lauraDon.cantidadDeHeridas())
+	}
+	test "De la familia las Leonas es atacada Laura por Leo que es el Don, no la mata, solo la desarma"{
+		// Laura inicialmente tiene sus armas
+		assert.notEquals(0, lauraDon.armas().size())
+		// Laura es atacado por ser la mas peligrosa de su familia
+		leoDon.ataqueSorpresa(familiaLasLeonas)
+		// Laura queda desarmada, esta viva y sin heridas
+		assert.equals(0, lauraDon.armas().size())
+		assert.equals(true, lauraDon.estaVivo())
+		assert.equals(0, lauraDon.cantidadDeHeridas())
+	}
+}
+
+//--> PUNTO D
+describe "Test del punto D: Luto"{
+	test "El don Laura esta viva, por hacer su Luto se lanza un excepcion"{
+		// Laura es el Don de la Familia de las Leonas y esta viva
+		assert.equals(true, lauraDon.estaVivo())
+		// Como no esta muerta debe arrojar una excepcion con este mensaje
+		assert.throwsExceptionWithMessage("El Don esta vivo por lo que no debe haber Luto",{familiaLasLeonas.luto()})
+	}
+	test "El don Leo esta muerto, por hacer su Luto se recategorizan sus miembros"{
+		// El don inicialmente esta vivo
+		assert.equals(true, familiaLosBuhos.elDonEstaVivo())
+		// El Don es atacado y muere
+		pistola.usar(leoDon)
+		// Leo no esta vivo
+		assert.equals(false,familiaLosBuhos.elDonEstaVivo())
+		// Su familia hace luto
+		familiaLosBuhos.luto()
+		// Sus miembros se recategorizan, el Soldado Jose pasa a subjefe, los demas siguen siendo soldados
+		assert.equals(subjefe, joseSoldadoRevolver.rango())
+		assert.equals(soldado, josueSoldadoDaga.rango())
+		assert.equals(soldado, juanSoldado.rango())  
+		// Sus miembros se recategorizan, el Subjefe Nico pasa a soldado, pero Pedro es el nuevo Don
+		assert.equals(don, pedroSubjefe.rango())
+		assert.equals(soldado, nicoSubjefe.rango())
+	}
+	//const miembrosDeLosBuhos = #{juanSoldado,joseSoldadoRevolver,josueSoldadoDaga,pedroSubjefe,nicoSubjefe,leoDon}
+	
+	test "El don Leo esta muerto, por hacer su Luto todos los miembros vivos acondicionan sus armas y reciben un nuevo revolver acondicionado"{
+		// De la Familia de los Buhos solo dejamos vivo al Subjefe Nico, tiene dos armas, ninguna en condiciones
+		pistola.usar(juanSoldado); assert.equals(false, juanSoldado.estaVivo())
+		pistola.usar(joseSoldadoRevolver); assert.equals(false, joseSoldadoRevolver.estaVivo())
+		pistola.usar(josueSoldadoDaga); assert.equals(false, josueSoldadoDaga.estaVivo())
+		pistola.usar(pedroSubjefe); assert.equals(false, pedroSubjefe.estaVivo())
+		pistola.usar(leoDon); assert.equals(false, familiaLosBuhos.elDonEstaVivo())
+		assert.equals(true, nicoSubjefe.estaVivo())
+		// Nico tiene solo dos armas y ninguna en condiciones
+		assert.equals(2,nicoSubjefe.armas().size())
+		assert.equals(0, nicoSubjefe.cantidadDeArmasEnCondiciones())
+		// Su familia hace luto, entonces, se acondicionan las Armas de Nico
+		familiaLosBuhos.luto()
+		// Nico tiene todas sus armas acondicionadas
+		assert.equals(3, nicoSubjefe.cantidadDeArmasEnCondiciones())
+	}
+	test "El don Leo esta muerto, Pedro es nombrado como nuevo Don, es el mafioso vivo mas peligroso"{
+		// De la Familia de los Buhos solo el don esta muerto
+		assert.equals(true, juanSoldado.estaVivo())
+		assert.equals(true, joseSoldadoRevolver.estaVivo())
+		assert.equals(true, josueSoldadoDaga.estaVivo())
+		assert.equals(true, pedroSubjefe.estaVivo())
+		pistola.usar(leoDon); assert.equals(false, leoDon.estaVivo())
+		assert.equals(true, nicoSubjefe.estaVivo())
+		// Pedro es un Subjefe 
+		assert.equals(subjefe, pedroSubjefe.rango())
+		// Su familia hace luto, entonces, Pedro pasa ser el nuevo Don
+		familiaLosBuhos.luto()
+		// Pedro es el nuevo don
+		assert.equals(don, pedroSubjefe.rango())
+		assert.equals("Pedro", familiaLosBuhos.elDon().nombre())
+	}
+}
+
+//--> PUNTO D
+describe "Test del punto E: Gustos Rusticos"{
+	test "Los revolveres oxidados tienen una peligrosidad base que es la mitad de un revolver comun"{
+		// Peligrosidad Base de un Revolver Comun en condiciones
+		assert.equals(12, new Revolver().peligrosidadBase())
+		// Peligrosidad Base de un Revolver Oxidado en condiciones
+		assert.equals(6, new RevolverOxidado().peligrosidadBase())
+	}
+	test "Uno de cada tres disparos hiere en vez de matar a la víctima"{
+		const revolverOxidado = new RevolverOxidado()
+
+		const primerasTresVictimas = [new Mafioso(rango=soldado, nombre ="Victima1"),
+		new Mafioso(rango=soldado, nombre ="Victima2"), new Mafioso(rango=soldado, nombre ="Victima3")]
+
+		const ultimasTresVictimas = [new Mafioso(rango=soldado, nombre ="Victima4"),
+		new Mafioso(rango=soldado, nombre ="Victima5"), new Mafioso(rango=soldado, nombre ="Victima6")]
+
+		// Dispara a consecutivamente a las primerasTresVictimas
+		primerasTresVictimas.forEach{ victima => revolverOxidado.usar(victima)}
+			// Solo puede haber una victima viva, las otras dos murieron, no importa el orden 
+			assert.equals(2,primerasTresVictimas.count{victima => !victima.estaVivo()})
+			assert.equals(1,primerasTresVictimas.count{victima => victima.cantidadDeHeridas()==1})
+		// Dispara a consecutivamente a las ultimasTresVictimas
+		ultimasTresVictimas.forEach{ victima => revolverOxidado.usar(victima)}
+			// Solo puede haber una victima viva, las otras dos murieron, no importa el orden 
+			assert.equals(2,ultimasTresVictimas.count{victima => !victima.estaVivo()})
+			assert.equals(1,ultimasTresVictimas.count{victima => victima.cantidadDeHeridas()==1})
+	} 
+}
+
+describe "Test del punto E (con otro planteo de RevolverOxidado, plantearon mis compañeros del curso): Gustos Rusticos"{
+	test "Los revolveres oxidados tienen una peligrosidad base que es la mitad de un revolver comun"{
+		// Peligrosidad Base de un Revolver Comun en condiciones
+		assert.equals(12, new Revolver().peligrosidadBase())
+		// Peligrosidad Base de un Revolver Oxidado en condiciones
+		assert.equals(6, new Revolver_Oxidado().peligrosidadBase())
+	}
+	/* TENER EN CUENTA QUE ESTA VERSION DE REVOLVER OXIDADO SI SE CORRE ESTE MISMO TEST VARIAS VECES,
+	 * SE PUEDE APRECIAR QUE TIENE FALLAS, LA OTRAV VERSION LA CORRAR N VECES NO LAS TIENE
+	 */
+	
+	test "Uno de cada tres disparos hiere en vez de matar a la víctima"{
+		const revolverOxidado = new Revolver_Oxidado()
+
+		const primerasTresVictimas = [new Mafioso(rango=soldado, nombre ="Victima1"),
+		new Mafioso(rango=soldado, nombre ="Victima2"), new Mafioso(rango=soldado, nombre ="Victima3")]
+
+		const ultimasTresVictimas = [new Mafioso(rango=soldado, nombre ="Victima4"),
+		new Mafioso(rango=soldado, nombre ="Victima5"), new Mafioso(rango=soldado, nombre ="Victima6")]
+
+		// Dispara a consecutivamente a las primerasTresVictimas
+		primerasTresVictimas.forEach{ victima => revolverOxidado.usar(victima)}
+			// Solo puede haber una victima viva, las otras dos murieron, no importa el orden 
+			assert.equals(2,primerasTresVictimas.count{victima => !victima.estaVivo()})
+			assert.equals(1,primerasTresVictimas.count{victima => victima.cantidadDeHeridas()==1})
+		// Dispara a consecutivamente a las ultimasTresVictimas
+		ultimasTresVictimas.forEach{ victima => revolverOxidado.usar(victima)}
+			// Solo puede haber una victima viva, las otras dos murieron, no importa el orden 
+			assert.equals(2,ultimasTresVictimas.count{victima => !victima.estaVivo()})
+			assert.equals(1,ultimasTresVictimas.count{victima => victima.cantidadDeHeridas()==1})
+	} 
+}

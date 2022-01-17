@@ -25,41 +25,49 @@ class MafiosoException inherits Exception { }
 class Familia{
 	const miembros = #{}
 
-	//method durmiendoConLosPeces(mafioso) = !mafioso.estaVivo()
-
 	method elMasPeligroso() = self.miembrosVivos().max{ mafioso => mafioso.nivelDeIntimidacion()}
 
-	method elDon() = miembros.filter({ mafioso => mafioso.rango() == don}).head()
+	method miembrosVivos() = miembros.filter{ mafioso => mafioso.estaVivo()}
 
-	method  soldadosConMasDeDosArmasEnCondiciones() = miembros.filter{ 
-		mafioso => mafioso.rango() == soldado && mafioso.cantidadDeArmasEnCondiciones()>2}
+	method elDon() = self.miembrosVivos().find{ mafioso => mafioso.rango() == don}
+	method elDonEstaVivo() = self.miembrosVivos().any{mafioso => mafioso.rango() == don}
 
-	method  subjefesQueNoTienenMaDeDosArmasEnCondiciones() =  miembros.filter{ 
-		mafioso => mafioso.rango() == subjefe && mafioso.cantidadDeArmasEnCondiciones()<2}
+	method recategorizables(condicionDelRango) = self.miembrosVivos().filter(condicionDelRango)
+
+	method recategorizar(condicionDelRango, categoria){
+		self.recategorizables(condicionDelRango).forEach{mafioso => mafioso.rango(categoria)} 
+	}
 
 	method recategorizarMiembros(){
-		self.soldadosConMasDeDosArmasEnCondiciones().forEach{mafioso => mafioso.rango(subjefe)}
-		self.subjefesQueNoTienenMaDeDosArmasEnCondiciones().forEach{mafioso => mafioso.rango(soldado)}
+		// Recaterizar Soldados, los que cumplan la condicion pasan a Subjefes
+		self.recategorizar({ 
+		mafioso => mafioso.rango() == soldado && mafioso.cantidadDeArmasEnCondiciones()>2
+		}, subjefe)
+		// Recategorizar Subjefes, los que cumpla la condicion pasan a Soldados
+		self.recategorizar({ 
+		mafioso => mafioso.rango() == subjefe && mafioso.cantidadDeArmasEnCondiciones()<2
+		}, soldado)
 	}
 	
-	method miembrosVivos() = miembros.filter{ mafioso => mafioso.estaVivo(mafioso)}
-
-	method reacondicionarArmas(){
-		self.miembrosVivos().forEach{ mafioso => mafioso.reacondicionarArmas()}
+	method acondicionarArmas(){
+		self.miembrosVivos().forEach{ mafioso => 
+			mafioso.acondicionarArmas() 
+			mafioso.armar(new Revolver(peligrosidadBase = 10))
+		}
 	}
 
 	method nombrarNuevoDon(){
-		const mafioso = self.elMasPeligroso()
-		mafioso.rango(don)
+		const mafiosoMasPeligroso = self.elMasPeligroso()
+		mafiosoMasPeligroso.rango(don)
 	}
 
 	method luto(){
-		if( !self.elDon().estaVivo()){
-			throw new MafiosoException(message = "No esta Muerto por lo que no debe haber Luto") 	
+		if(self.elDonEstaVivo()){
+			throw new MafiosoException(message = "El Don esta vivo por lo que no debe haber Luto") 	
 		}
-		else{
+		else{ 
 			self.recategorizarMiembros()
-			self.reacondicionarArmas()
+			self.acondicionarArmas()
 			self.nombrarNuevoDon()
 		}
 	}
@@ -68,6 +76,7 @@ class Familia{
 
 //############## Mafioso 
 class Mafioso{
+	const property nombre
 	var estaVivo = true //No debe tener un setter xq no puede ser revivido.
 	var cantidadDeHeridas = 0 //No debe tener un setter xq no puede ser herido en mas de una unidad a la vez.
 	var property rango // don || subjefe || soldado
@@ -108,10 +117,7 @@ class Mafioso{
 		}
 	} 	
 	method armar(arma){armas.add(arma)}
-	method reacondicionarArmas(){
-		armas.forEach{ arma => arma.estaEnCondiciones(true)}
-		self.armar(new Revolver(peligrosidadBase = 10))
-	} 
+	method acondicionarArmas(){ armas.forEach{ arma => arma.acondicionar()} } 
 }
 
 //############# Armas
@@ -119,6 +125,7 @@ class Arma{
 	var property peligrosidadBase = 1
 	
 	method estaEnCondiciones() = true
+	method acondicionar(){}
 	method usar(victima){}
 	method peligrosidad() = if (!self.estaEnCondiciones()) 1 else self.peligrosidadBase()
 }
@@ -127,7 +134,8 @@ class Revolver inherits Arma{
 	var cantidadDeBalas = 6 //No debe tener un setter xq no puede tener mas de seis balas.
  	
  	method cantidadDeBalas() = cantidadDeBalas
-	override method estaEnCondiciones() = cantidadDeBalas>0 
+	override method estaEnCondiciones() = cantidadDeBalas>0
+	override method acondicionar(){ self.recargar()} 
 	override method usar(victima){
 		if( self.estaEnCondiciones()){
 			victima.morir()
@@ -135,7 +143,6 @@ class Revolver inherits Arma{
 		} 
 	}
 	method recargar(){ cantidadDeBalas = 6}
-
 	override method peligrosidadBase() = 2*cantidadDeBalas
 }
 
@@ -146,7 +153,8 @@ class Daga inherits Arma{
 class CuerdaDePiano inherits Arma{ 
 	var property estaTensa = true
 	
-	override method estaEnCondiciones() = self.estaTensa() 
+	override method estaEnCondiciones() = self.estaTensa()
+	override method acondicionar(){ estaTensa = true} 
 	override method usar(victima){ 
 		if( self.estaEnCondiciones()) victima.morir() else victima.herir()
 	} 
@@ -170,6 +178,22 @@ class RevolverOxidado inherits Revolver{//punto E
 			cantidadDeBalas -= 1	
 		} 
 	}
+
+	override method peligrosidadBase() = super()/2
+}
+
+class Revolver_Oxidado inherits Revolver{//punto E
+ 	
+	override method usar(victima){
+		if( self.estaEnCondiciones()){
+			if(0.randomUpTo(3).roundUp()==1){
+				victima.herir()
+			}else{
+				victima.morir()
+			}	
+			cantidadDeBalas -= 1	
+		} 
+	}    
 
 	override method peligrosidadBase() = super()/2
 }

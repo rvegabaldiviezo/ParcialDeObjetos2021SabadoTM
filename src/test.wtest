@@ -389,7 +389,7 @@ describe "Test del punto E (con otro planteo de RevolverOxidado, plantearon mis 
 		assert.equals(6, new Revolver_Oxidado().peligrosidadBase())
 	}
 	/* TENER EN CUENTA QUE ESTA VERSION DE REVOLVER OXIDADO SI SE CORRE ESTE MISMO TEST VARIAS VECES,
-	 * SE PUEDE APRECIAR QUE TIENE FALLAS, LA OTRAV VERSION LA CORRAR N VECES NO LAS TIENE
+	 * SE PUEDE APRECIAR QUE TIENE FALLAS, LA OTRA VERSION LA CORRES N VECES Y NO LAS TIENE
 	 */
 	
 	test "Uno de cada tres disparos hiere en vez de matar a la víctima"{

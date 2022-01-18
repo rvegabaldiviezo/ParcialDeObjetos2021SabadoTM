@@ -83,8 +83,11 @@ class Mafioso{
 	const property armas = [] // Revolver || Daga || CuerdaDePiano || RevolverOxidado
 
 	method estaVivo() = estaVivo
+	
 	method cantidadDeHeridas() = cantidadDeHeridas 
+	
 	method morir(){ estaVivo = false}
+	
 	method herir() { 
 		if(cantidadDeHeridas<3) cantidadDeHeridas += 1 
 		else{
@@ -96,6 +99,7 @@ class Mafioso{
 	method hacerSuTrabajo(victima){
 		rango.hacerSuTrabajo(self,victima)
 	}
+	
 	method ataqueSorpresa(familia){
 		const victima = familia.elMasPeligroso()
 		self.hacerSuTrabajo(victima)
@@ -107,16 +111,21 @@ class Mafioso{
 	}
 
 	method desarmar(){ armas.clear()}
-	method cantidadDeArmasEnCondiciones() = armas.filter({ arma => arma.estaEnCondiciones()}).size() 
-	method primerArmaEnCondiciones()= armas.filter({ arma => arma.estaEnCondiciones()}).head()
+	
+	method cantidadDeArmasEnCondiciones() = armas.count{ arma => arma.estaEnCondiciones()}
+	
+	method primerArmaEnCondiciones()= armas.find{ arma => arma.estaEnCondiciones()}
+	
 	method primerArma(){
 		if(armas.isEmpty()){
-			throw new ArmaException(message = "No tiene Armas") 
+			throw new ArmaException(message = "No tiene Armas para atacar a la victima") 
 		}else{
 			return armas.head()
 		}
 	} 	
+	
 	method armar(arma){armas.add(arma)}
+	
 	method acondicionarArmas(){ armas.forEach{ arma => arma.acondicionar()} } 
 }
 
@@ -162,7 +171,7 @@ class CuerdaDePiano inherits Arma{
 	override method peligrosidadBase() = 5	
 }
 
-class RevolverOxidado inherits Revolver{//punto E
+class RevolverOxidado inherits Revolver{// punto E
  	var balaRamdom = 1
  	
 	method disparoRamdom(){		
@@ -182,7 +191,7 @@ class RevolverOxidado inherits Revolver{//punto E
 	override method peligrosidadBase() = super()/2
 }
 
-class Revolver_Oxidado inherits Revolver{//punto E
+class Revolver_Oxidado inherits Revolver{// punto E: Planteo propuesto por otros compañeros
  	
 	override method usar(victima){
 		if( self.estaEnCondiciones()){
